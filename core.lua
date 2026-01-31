@@ -56,3 +56,35 @@ SlashCmdList["AUTOSQW"] = function()
   -- No delay needed for manual trigger
   OptimizeSettings("Manual")
 end
+
+-- 4. AUTO MERCHANT (Repair + Sell Greys)
+local m = CreateFrame("Frame")
+m:RegisterEvent("MERCHANT_SHOW")
+
+m:SetScript("OnEvent", function()
+  -- Auto Repair
+  if CanMerchantRepair() then
+    local cost = GetRepairAllCost()
+    if cost > 0 then
+      -- Try to use Guild Bank first, then Personal
+      -- if CanGuildBankRepair() and cost <= GetGuildBankWithdrawMoney() then
+      --     RepairAllItems(true)
+      --     print("|cff00ff00[MySettings]|r Guild Repaired: " .. GetCoinTextureString(cost))
+      -- elseif GetMoney() >= cost then
+      RepairAllItems()
+      print("|cff00ff00[MySettings]|r Repaired: " .. GetCoinTextureString(cost))
+      -- end
+    end
+  end
+
+  -- Auto Sell Greys
+  local bag, slot
+  for bag = 0, 4 do
+    for slot = 1, C_Container.GetContainerNumSlots(bag) do
+      local info = C_Container.GetContainerItemInfo(bag, slot)
+      if info and info.quality == 0 and not info.hasNoValue then
+        C_Container.UseContainerItem(bag, slot)
+      end
+    end
+  end
+end)
