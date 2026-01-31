@@ -1,40 +1,35 @@
-name: Packager
+name: Package addon
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - "v*"
+      - "*"
+    paths-ignore:
+      - ".github/**"
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    concurrency:
+      group: packager
 
     steps:
-      - name: Clone project
-        uses: actions/checkout@v4
+      - name: Checkout addon
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Build Package (No Upload)
-        uses: BigWigsMods/packager@v2
+      - name: Run luacheck
+        uses: BigWigsMods/actions/luacheck@master
         with:
-          args: -d
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          args: -qo 011
 
-      - name: Publish Release (Zip Only)
+      - name: Package
+        uses: BigWigsMods/packager@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # 1. Identify the Zip file inside .release folder
-          zip_file=$(ls .release/*.zip | head -n 1)
-
-          # 2. Check for Changelog (Packager puts it in root)
-          # We use a conditional to prevent the "File not found" error you saw before
-          if [ -f "CHANGELOG.md" ]; then
-             gh release create ${{ github.ref_name }} "$zip_file" --title "${{ github.ref_name }}" --notes-file CHANGELOG.md
-          else
-             gh release create ${{ github.ref_name }} "$zip_file" --title "${{ github.ref_name }}" --generate-notes
-          fi
+          # CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          # WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          # WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
