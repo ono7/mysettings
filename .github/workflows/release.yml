@@ -3,20 +3,23 @@ name: Packager
 on:
   push:
     tags:
-      - "v*" # Triggers only on version tags (e.g., v1.0.1)
+      - "v*"
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - name: Clone project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required for changelog generation
+          fetch-depth: 0
 
       - name: Package and Release
         uses: BigWigsMods/packager@v2
         env:
+          # The token must be in 'env', not 'with'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: -d
+        # Note: We removed the 'with: args: -d' block entirely.
