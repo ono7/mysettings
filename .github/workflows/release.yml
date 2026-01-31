@@ -1,0 +1,21 @@
+name: Packager
+
+on:
+  push:
+    tags:
+      - "v*" # Triggers only on version tags (e.g., v1.0.1)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for changelog generation
+
+      # BigWigsMods/packager@v2 is used because they have everything needed to create a release a publish
+      - name: Package and Release
+        uses: BigWigsMods/packager@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
