@@ -5,6 +5,7 @@ venv/
 build/
 worktree/
 worktrees/
+release.json
 
 # we need this for RipGrep/fzf to filter properly (telescope)
 .git/
