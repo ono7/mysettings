@@ -9,7 +9,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required for 'gh release create'
+      contents: write
 
     steps:
       - name: Clone project
@@ -20,7 +20,6 @@ jobs:
       - name: Build Package (No Upload)
         uses: BigWigsMods/packager@v2
         with:
-          # -d tells the packager to build the zip but SKIP the upload step
           args: -d
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,13 +28,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Identify the Zip file
+          # 1. Identify the Zip file inside .release folder
           zip_file=$(ls .release/*.zip | head -n 1)
 
-          # 2. Create Release using GitHub CLI
-          # We check if CHANGELOG.md exists in root; if not, we let GitHub generate default notes.
+          # 2. Check for Changelog (Packager puts it in root)
+          # We use a conditional to prevent the "File not found" error you saw before
           if [ -f "CHANGELOG.md" ]; then
-            gh release create ${{ github.ref_name }} "$zip_file" --title "${{ github.ref_name }}" --notes-file CHANGELOG.md
+             gh release create ${{ github.ref_name }} "$zip_file" --title "${{ github.ref_name }}" --notes-file CHANGELOG.md
           else
-            gh release create ${{ github.ref_name }} "$zip_file" --title "${{ github.ref_name }}" --generate-notes
+             gh release create ${{ github.ref_name }} "$zip_file" --title "${{ github.ref_name }}" --generate-notes
           fi
