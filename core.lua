@@ -98,7 +98,8 @@ local function OptimizeSettings(triggerSource)
 
   if newSQW >= 250 then
     newSQW = 400
-    local errMsg = string.format(">> HIGH LATENCY DETECTED << max SQW is now %s", tostring(newSQW))
+    local errMsg =
+      string.format(">> HIGH LATENCY DETECTED lag(%s) << max SQW is now %s", tostring(worldLag), tostring(newSQW))
     Log(Colorize(errMsg, "red"))
   end
 
