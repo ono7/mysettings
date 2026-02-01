@@ -91,10 +91,16 @@ local function OptimizeSettings(triggerSource)
 
   -- For PvP maps, we use a tighter, more predictable window
   local isPvPInstance = C_PvP.IsPVPMap()
-  -- local tolerance = isPvPInstance and 80 or 100
+  local tolerance = isPvPInstance and 80 or 100
   -- local tolerance = 80
-  local tolerance = 150
+  local tolerance = 100
   local newSQW = worldLag + tolerance
+
+  if newSQW >= 300 then
+    newSQW = 400
+    local errMsg = string.format(">> HIGH LATENCY DETECTED << max SQW is now %s", tostring(newSQW))
+    Log(Colorize(errMsg, "red"))
+  end
 
   SetCVar("SpellQueueWindow", newSQW)
   local actualSQW = GetCVar("SpellQueueWindow")
@@ -175,3 +181,92 @@ end)
 local done = string.format("Set %s settings Successfully!, with %s errors", setvarSuccess, setvarFailed)
 
 Log(Colorize(done, "yellow"))
+
+-- 8. COMBAT UI HIDER
+local combatFade = CreateFrame("Frame")
+combatFade:RegisterEvent("PLAYER_REGEN_DISABLED")
+combatFade:RegisterEvent("PLAYER_REGEN_ENABLED")
+
+-- Frames to toggle. Verified for Dragonflight/War Within (Retail).
+local framesToHide = {
+  MinimapCluster, -- Minimap and Zone Text
+  -- ObjectiveTrackerFrame, -- Quest Tracker
+  -- MicroMenuContainer, -- Micro Menu (Character, Spellbook, etc.)
+  -- BagsBar, -- Bag Buttons
+}
+
+-- 8. OBJECTIVE TRACKER MANAGER
+local obs = CreateFrame("Frame")
+obs:RegisterEvent("PLAYER_ENTERING_WORLD")
+obs:RegisterEvent("PLAYER_REGEN_DISABLED")
+obs:RegisterEvent("PLAYER_REGEN_ENABLED")
+
+local function UpdateObjectiveTracker(event)
+  if not ObjectiveTrackerFrame then
+    return
+  end
+
+  local inCombat = InCombatLockdown() or (event == "PLAYER_REGEN_DISABLED")
+  local _, instanceType = GetInstanceInfo()
+  local isPvP = (instanceType == "arena" or instanceType == "pvp")
+
+  -- Logic: Collapse if in combat OR if in a PvP zone.
+  -- Expand only if out of combat AND in a PvE zone.
+  if inCombat or isPvP then
+    if not ObjectiveTrackerFrame.isCollapsed then
+      ObjectiveTrackerFrame:SetCollapsed(true)
+    end
+  else
+    if ObjectiveTrackerFrame.isCollapsed then
+      ObjectiveTrackerFrame:SetCollapsed(false)
+    end
+  end
+end
+
+obs:SetScript("OnEvent", function(self, event)
+  -- Small delay on zone change to ensure GetInstanceInfo() is accurate
+  if event == "PLAYER_ENTERING_WORLD" then
+    C_Timer.After(1, function()
+      UpdateObjectiveTracker(event)
+    end)
+  else
+    UpdateObjectiveTracker(event)
+  end
+end)
+
+combatFade:SetScript("OnEvent", function(self, event)
+  local inCombat = (event == "PLAYER_REGEN_DISABLED")
+
+  for _, frame in ipairs(framesToHide) do
+    if frame then
+      -- SetShown(false) is idiomatic for Hide(), SetShown(true) for Show()
+      frame:SetShown(not inCombat)
+    end
+  end
+end)
+
+-- 9. SECURE KEYBLOCKER
+-- We use a SecureHandlerStateTemplate to legally rebind keys during combat lockdown.
+local blocker = CreateFrame("Button", "MyCombatBlocker", UIParent, "SecureHandlerStateTemplate")
+
+-- 1. Register the "combat" condition driver
+RegisterStateDriver(blocker, "combatState", "[combat] 1; 0")
+
+-- 2. Define the handler script that runs when combat starts (1) or ends (0)
+blocker:SetAttribute(
+  "_onstate-combatState",
+  [[
+    if newstate == 1 then
+        -- IN COMBAT: Steal the keys.
+        -- "true" = priority override.
+        -- "self:GetName()" means clicking the key triggers this hidden button (doing nothing).
+        self:SetBindingClick(true, "ESCAPE", self:GetName())
+
+        -- To add more keys, duplicate the line above:
+        -- self:SetBindingClick(true, "C", self:GetName())
+    else
+        -- OUT OF COMBAT: Release the keys back to normal.
+        self:ClearBindings()
+    end
+]]
+)
