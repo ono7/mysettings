@@ -81,7 +81,7 @@ Log(Colorize(string.format("Setup Complete: %d success, %d errors", setvarSucces
 
 -- 3. LOGIC MODULES (SMART POLLING)
 local retryCount = 0
-local MAX_RETRIES = 10
+local MAX_RETRIES = 30
 
 local function OptimizeConnection(source)
   local _, _, _, worldLag = GetNetStats()
