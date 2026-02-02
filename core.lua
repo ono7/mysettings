@@ -1,4 +1,14 @@
--- 1. UTILITIES & CONFIG
+--[[
+
+/etrace
+
+For addon debugging: Open an in-game window containing a live-updating event log of all events happening in your game (clicks, movement, mouseovers, chats, combatevents, players running in and out of render distance, etc.:
+
+/fstack
+
+For UI debugging. Type this command to mouseover any UI element to highlight its length/width, layer, name and parent element.
+
+]]
 local addonName, ns = ...
 local setvarSuccess, setvarFailed = 0, 0
 
@@ -55,20 +65,35 @@ Log("Loading MySettings...")
 local cvars = {
   nameplateOverlapV = "0.28",
   cameraDistanceMaxZoomFactor = "2.6",
+  CameraReduceUnexpectedMovement = "1",
   ActionButtonUseKeyDown = "1",
   ffxglow = "0",
-  lossOfControl = "1",
-  nameplateSelectedScale = "1.65",
-  noBuffDebuffFilterOnTarget = "1",
-  cameraSmoothStyle = "0",
-  violenceLevel = "5",
-  UberTooltips = "1",
+  lossOfControl = "1", -- show when im stunned
+  nameplateSelectedScale = "1.75", -- target nameplate size
+  -- noBuffDebuffFilterOnTarget = "1", -- does not apply important filter to target frame
+  cameraSmoothStyle = "0", -- more responsive camara instead of smoothing and following behind
+  violenceLevel = "5", -- more blood
+  UberTooltips = "1", -- additional details
   nameplateMinScale = "1",
   nameplateMaxScale = "1",
   Sound_EnableErrorSpeech = "0",
   autoLootDefault = "1",
   nameplateMaxDistance = "60",
+  AutoPushSpellToActionBar = "0", -- dont automatically add new spells to castbars
+  UnitNamePlayerGuild = "0", -- remove guild names
+  UnitNamePlayerPVPTitle = "0", -- remove pvp titles
 }
+
+local current = C_CVar.GetCVar("ResampleAlwaysSharpen")
+if current ~= "1" then
+  SetAndVerifyCVar("ResampleAlwaysSharpen", "1")
+end
+
+local desired = "0.999"
+-- GetCVar returns a string, comparison must be exact
+if C_CVar.GetCVar("renderscale") ~= desired then
+  SetAndVerifyCVar("renderscale", desired)
+end
 
 for cvar, val in pairs(cvars) do
   SetAndVerifyCVar(cvar, val)
