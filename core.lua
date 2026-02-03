@@ -79,7 +79,7 @@ local cvars = {
   Sound_EnableErrorSpeech = "0",
   autoLootDefault = "1",
   nameplateMaxDistance = "60",
-  AutoPushSpellToActionBar = "0", -- dont automatically add new spells to castbars
+  AutoPushSpellToActionBar = 0, -- dont automatically add new spells to castbars
   UnitNamePlayerGuild = "0", -- remove guild names
   UnitNamePlayerPVPTitle = "0", -- remove pvp titles
   countdownForCooldowns = "1", -- NUMBERS: Shows "3, 2, 1" on icons instead of just a clock swipe
@@ -91,6 +91,17 @@ local cvars = {
   -- Show a distinct icon over the "Soft Target" so you know who you will hit
   softTargetIconEnemy = "1",
 }
+
+-- change audio output device automatically when it changes
+SetAndVerifyCVar("Sound_OutputDriverIndex", "0")
+local event = CreateFrame("FRAME")
+event:RegisterEvent("VOICE_CHAT_OUTPUT_DEVICES_UPDATED")
+event:SetScript("OnEvent", function()
+  if not CinematicFrame:IsShown() and not MovieFrame:IsShown() then -- Dont restart sound system during cinematic
+    SetCVar("Sound_OutputDriverIndex", "0")
+    Sound_GameSystem_RestartSoundSystem()
+  end
+end)
 
 local current = C_CVar.GetCVar("ResampleAlwaysSharpen")
 if current ~= "1" then
