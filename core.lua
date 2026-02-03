@@ -234,6 +234,9 @@ Events:SetScript("OnEvent", function(self, event, ...)
   elseif event == "PLAYER_REGEN_DISABLED" or event == "PLAYER_REGEN_ENABLED" then
     local inCombat = (event == "PLAYER_REGEN_DISABLED")
 
+    -- Toggle Circle Highlight
+    C_CVar.SetCVar("SelfHighlight", inCombat and "1" or "0")
+
     -- Hide Minimap Cluster
     if MinimapCluster then
       MinimapCluster:SetShown(not inCombat)
