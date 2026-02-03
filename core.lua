@@ -85,11 +85,8 @@ local cvars = {
   countdownForCooldowns = "1", -- NUMBERS: Shows "3, 2, 1" on icons instead of just a clock swipe
   pvpFramesDisplayClassColor = "1", -- shows class colors
   nameplateShowOnlyNameForFriendlyPlayerUnits = "1", -- only show name for friendies
-  -- automatically targets enemies you face if you have no target
-  softTargetEnemy = "1",
-
-  -- Show a distinct icon over the "Soft Target" so you know who you will hit
-  softTargetIconEnemy = "1",
+  softTargetEnemy = "1", -- automatically targets enemies you face if you have no target
+  softTargetIconEnemy = "1", -- Show a distinct icon over the "Soft Target" so you know who you will hit
 }
 
 -- change audio output device automatically when it changes
