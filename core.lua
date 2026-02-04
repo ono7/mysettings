@@ -79,7 +79,6 @@ local cvars = {
   Sound_EnableErrorSpeech = "0",
   autoLootDefault = "1",
   nameplateMaxDistance = "60",
-  AutoPushSpellToActionBar = 0, -- dont automatically add new spells to castbars
   UnitNamePlayerGuild = "0", -- remove guild names
   UnitNamePlayerPVPTitle = "0", -- remove pvp titles
   graphicsComputeEffects = "0", -- disabled
@@ -130,6 +129,7 @@ f:SetScript("OnEvent", function()
     graphicsLiquidDetail = "0", -- Low (Water quality; zero competitive value)
     weatherDensity = "0", -- Disabled (Rain/Snow distracts from spell cues)
     ffxGlow = "0", -- Disabled (Removes full-screen bloom/glare)
+    AutoPushSpellToActionBar = "0", -- dont automatically add new spells to castbars
   }
 
   -- 2. Enforce Configuration
@@ -257,23 +257,6 @@ Events:SetScript("OnEvent", function(self, event, ...)
         end
       end
     end
-
-  -- -- C. Auto Quest (Retail C_GossipInfo API)
-  -- elseif event == "GOSSIP_SHOW" or event == "QUEST_DETAIL" or event == "QUEST_PROGRESS" then
-  --   if IsShiftKeyDown() then
-  --     return
-  --   end
-  --
-  --   if event == "GOSSIP_SHOW" then
-  --     local options = C_GossipInfo.GetOptions()
-  --     if #options == 1 then
-  --       C_GossipInfo.SelectOption(options[1].gossipOptionID)
-  --     end
-  --   elseif event == "QUEST_DETAIL" then
-  --     AcceptQuest()
-  --   elseif event == "QUEST_PROGRESS" and IsQuestCompletable() then
-  --     CompleteQuest()
-  --   end
 
   -- D. Combat UI Toggles
   elseif event == "PLAYER_REGEN_DISABLED" or event == "PLAYER_REGEN_ENABLED" then
