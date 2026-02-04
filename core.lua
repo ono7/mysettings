@@ -106,7 +106,7 @@ if current ~= "1" then
   SetAndVerifyCVar("ResampleAlwaysSharpen", "1")
 end
 
---- this deals with graphics settings
+--- this deals with graphics settings only applied at login
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_LOGIN")
 f:SetScript("OnEvent", function()
@@ -158,6 +158,7 @@ end)
 --   SetAndVerifyCVar("renderscale", desired)
 -- end
 
+--- applies settings unconditionally on /reload
 for cvar, val in pairs(cvars) do
   SetAndVerifyCVar(cvar, val)
 end
