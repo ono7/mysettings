@@ -66,6 +66,7 @@ local cvars = {
   nameplateOverlapV = "0.28",
   cameraDistanceMaxZoomFactor = "2.6",
   CameraReduceUnexpectedMovement = "1",
+  TargetPriorityPvp = "3", -- prioritize player over pet
   ActionButtonUseKeyDown = "1",
   ffxglow = "0",
   lossOfControl = "1", -- show when im stunned
@@ -210,7 +211,7 @@ local function OptimizeConnection(source)
   SetAndVerifyCVar("SpellQueueWindow", newSQW)
 
   local isPvP = C_PvP.IsPVPMap()
-  SetAndVerifyCVar("TargetPriorityPvp", isPvP and 3 or 1)
+  -- SetAndVerifyCVar("TargetPriorityPvp", isPvP and 3 or 1)
 
   Log(
     string.format(
