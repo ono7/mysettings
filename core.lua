@@ -82,6 +82,7 @@ local cvars = {
   AutoPushSpellToActionBar = 0, -- dont automatically add new spells to castbars
   UnitNamePlayerGuild = "0", -- remove guild names
   UnitNamePlayerPVPTitle = "0", -- remove pvp titles
+  graphicsComputeEffects = "0", -- disabled
   countdownForCooldowns = "1", -- NUMBERS: Shows "3, 2, 1" on icons instead of just a clock swipe
   pvpFramesDisplayClassColor = "1", -- shows class colors
   nameplateShowOnlyNameForFriendlyPlayerUnits = "1", -- only show name for friendies
@@ -105,18 +106,57 @@ if current ~= "1" then
   SetAndVerifyCVar("ResampleAlwaysSharpen", "1")
 end
 
--- Default to Windows value
-local desired = "0.999"
+--- this deals with graphics settings
+local f = CreateFrame("Frame")
+f:RegisterEvent("PLAYER_LOGIN")
+f:SetScript("OnEvent", function()
+  -- 1. Define Configuration (OS-Separated)
+  -- Value mapping: IsMacClient() and <MacValue> or <WindowsValue>
+  local settings = {
+    renderscale = IsMacClient() and "0.69" or "0.999",
+    graphicsComputeEffects = IsMacClient() and "0" or "0", -- 0=Disabled (Mac), 4=Ultra (Win)
+    RAIDgraphicsComputeEffects = function()
+      return "0"
+    end, -- always disable
+    -- outlineMode = "3", -- High (Essential for spotting targets in chaos)
+    graphicsParticleDensity = "4", -- High (MANDATORY: Never set Low, or you won't see Ring of Frost/Traps)
+    projectedTextures = "1", -- Enabled (MANDATORY: Renders ground effects)
 
--- If on Mac, override to 0.69
-if IsMacClient() then
-  desired = "0.69"
-end
+    -- [3. Visual Clarity & FPS Savings (Remove "Eye Candy")]
+    gxTripleBuffer = "0", -- Disabled (Reduces input latency)
+    graphicsDepthEffects = "0", -- Disabled (Removes blur/depth of field; improves clarity)
+    graphicsSSAO = "0", -- Disabled (Ambient Occlusion; expensive shadow shading)
+    graphicsShadowQuality = "0", -- Low (Shadows are the #1 FPS killer in raids/BGs)
+    graphicsLiquidDetail = "0", -- Low (Water quality; zero competitive value)
+    weatherDensity = "0", -- Disabled (Rain/Snow distracts from spell cues)
+    ffxGlow = "0", -- Disabled (Removes full-screen bloom/glare)
+  }
 
--- GetCVar returns a string, comparison must be exact
-if C_CVar.GetCVar("renderscale") ~= desired then
-  SetAndVerifyCVar("renderscale", desired)
-end
+  -- 2. Enforce Configuration
+  for cvar, desired in pairs(settings) do
+    if C_CVar.GetCVar(cvar) ~= desired then
+      if SetAndVerifyCVar then
+        SetAndVerifyCVar(cvar, desired)
+      else
+        C_CVar.SetCVar(cvar, desired)
+      end
+      print("|cff00ff00[MySettings]|r Set " .. cvar .. ": " .. desired)
+    end
+  end
+end)
+
+-- -- Default to Windows value
+-- local desired = "0.999"
+--
+-- -- If on Mac, override to 0.69
+-- if IsMacClient() then
+--   desired = "0.69"
+-- end
+--
+-- -- GetCVar returns a string, comparison must be exact
+-- if C_CVar.GetCVar("renderscale") ~= desired then
+--   SetAndVerifyCVar("renderscale", desired)
+-- end
 
 for cvar, val in pairs(cvars) do
   SetAndVerifyCVar(cvar, val)
@@ -241,6 +281,7 @@ Events:SetScript("OnEvent", function(self, event, ...)
     -- Toggle Circle Highlight
     C_CVar.SetCVar("findYourSelfAnywhere", inCombat and "1" or "0")
     C_CVar.SetCVar("findYourSelfModeCircle", inCombat and "1" or "0")
+    C_CVar.SetCVar("findYourSelfModeOutline", inCombat and "1" or "0")
 
     -- Hide Minimap Cluster
     if C_PvP.IsPVPMap() then
