@@ -216,7 +216,8 @@ local function OptimizeConnection(source)
   Log(
     string.format(
       "%s (Src: %s) | Latency: %dms",
-      isPvP and Colorize("[PvP]", "red") or Colorize("[PvE]", "blue"),
+      -- isPvP and Colorize("[PvP]", "red") or Colorize("[PvE]", "blue"),
+      Colorize("SpellQueue"),
       source,
       worldLag
     ),
