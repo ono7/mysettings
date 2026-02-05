@@ -332,12 +332,6 @@ Events:SetScript("OnEvent", function(self, event, ...)
   end
 end)
 
--- 5. SLASH COMMANDS
-SLASH_AUTOSQW1 = "/sqw"
-SlashCmdList["AUTOSQW"] = function()
-  OptimizeConnection("Manual")
-end
-
 -- 6. SECURE KEYBLOCKER
 local blocker = CreateFrame("Button", "MyCombatBlocker", UIParent, "SecureHandlerStateTemplate")
 RegisterStateDriver(blocker, "combatState", "[combat] 1; 0")
