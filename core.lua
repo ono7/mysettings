@@ -53,8 +53,8 @@ end
 -- this returns 4 values, comma separated, adding {} will make them into a table
 local buildData = { GetBuildInfo() }
 
-Log(Colorize(string.format(">>> Game version: %s <<<", buildData[1]), "blue"))
-Log(Colorize(string.format(">>> Game released: %s <<<", buildData[3]), "blue"))
+Log(Colorize(string.format(">>> Game version: %s <<<", buildData[1]), "hunter"))
+Log(Colorize(string.format(">>> Game released: %s <<<", buildData[3]), "hunter"))
 Log(Colorize(string.format(">>> Game TOC: %s <<<", buildData[4]), "hunter"))
 
 local function SetAndVerifyCVar(cvar, wants)
@@ -210,7 +210,7 @@ end
 -- Permanently disable red error text
 UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE")
 
-Log(Colorize(string.format("Setup Complete: %d success, %d errors", setvarSuccess, setvarFailed), "blue"))
+Log(Colorize(string.format("Setup Complete: %d success, %d errors", setvarSuccess, setvarFailed), "hunter"))
 
 -- 3. LOGIC MODULES (SMART POLLING)
 local retryCount = 0
