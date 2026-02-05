@@ -9,10 +9,36 @@ For addon debugging: Open an in-game window containing a live-updating event log
 For UI debugging. Type this command to mouseover any UI element to highlight its length/width, layer, name and parent element.
 
 ]]
+
 local addonName, ns = ...
 local setvarSuccess, setvarFailed = 0, 0
 
-local Colors = { green = "00ff00", blue = "00aaff", red = "ff0000", white = "ffffff" }
+local Colors = {
+  -- Basics
+  green = "00ff00",
+  blue = "00aaff",
+  red = "ff0000",
+  white = "ffffff",
+  black = "000000",
+  yellow = "ffff00",
+  orange = "ffa500",
+  pink = "ff69b4", -- Hot Pink
+  cyan = "00ffff",
+
+  -- WoW Quality Colors (Approximate)
+  gray = "9d9d9d", -- Poor
+  common = "ffffff", -- Common
+  rare = "0070dd", -- Rare
+  epic = "a335ee", -- Epic
+  legend = "ff8000", -- Legendary
+  heirloom = "e6cc80", -- Heirloom
+
+  -- Class Colors (Examples)
+  druid = "ff7d0a",
+  mage = "69ccf0",
+  paladin = "f58cba",
+  hunter = "abd473",
+}
 
 local function Colorize(text, color)
   return string.format("|cff%s%s|r", Colors[color] or Colors.white, tostring(text))
@@ -23,6 +49,12 @@ local function Log(message, value)
   local suffix = value and (": " .. Colorize(value, "blue")) or ""
   print(prefix .. " " .. message .. suffix)
 end
+
+local buildData = { GetBuildInfo() }
+
+Log(Colorize(string.format(">>> Game version: %s <<<", buildData[1]), "blue"))
+Log(Colorize(string.format(">>> Game released: %s <<<", buildData[3]), "blue"))
+Log(Colorize(string.format(">>> Game TOC: %s <<<", buildData[4]), "hunter"))
 
 local function SetAndVerifyCVar(cvar, wants)
   C_CVar.SetCVar(cvar, wants)
