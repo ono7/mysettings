@@ -162,11 +162,8 @@ f:SetScript("OnEvent", function()
     GxAllowCachelessShaderMode = "0", -- dont use hdd/ssd for caching (use ram)
     graphicsDepthEffects = "0", -- Disabled (Removes blur/depth of field; improves clarity)
     graphicsSSAO = "0", -- Disabled (Ambient Occlusion; expensive shadow shading)
-    graphicsShadowQuality = "0", -- Low (Shadows are the #1 FPS killer in raids/BGs)
     Contrast = "70", -- better visuals
-    projectedTextures = "1", -- always
     graphicsGroundClutter = "0", -- less junk on the floor
-    graphicsLiquidDetail = "0",
     graphicsShadowQuality = "0",
     volumeFogLevel = "0",
     Sound_NumChannels = "128",
@@ -290,7 +287,7 @@ Events:SetScript("OnEvent", function(self, event, ...)
       local cost = GetRepairAllCost()
       if cost > 0 then
         RepairAllItems()
-        Log("Repaired", GetCoinTextureString(cost))
+        Log("Repaired", C_CurrencyInfo.GetCoinTextureString(cost))
       end
     end
     for bag = 0, 4 do
