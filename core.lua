@@ -97,18 +97,23 @@ Log("Loading MySettings...")
 
 local cvars = {
   -- nameplateOverlapV = "0.28",
-  nameplateOverlapH = "0.28",
+  nameplateOverlapH = "0.38",
   nameplateOverlapV = "1",
   nameplateSize = "2",
   nameplateSelectedScale = "1.10", -- target nameplate size
   nameplateMaxScale = "0.7",
-  nameplateMinScale = "1",
-  nameplateMaxScale = "1",
+  nameplateMinScale = "0.4",
   nameplateMaxDistance = "60",
+  showTutorials = "0", -- disable tutorials = 0, enable = 1
   nameplateShowOnlyNameForFriendlyPlayerUnits = "1", -- only show name for friendies
   cameraDistanceMaxZoomFactor = "2.6",
   CameraReduceUnexpectedMovement = "1",
+  assistedCombatHighlight = "1", --- should highlight the next spell that should be sent in combat
   TargetPriorityPvp = "3", -- prioritize player over pet
+  bankConfirmTabCleanUp = "0", -- no confirmation when autocleaning up bags
+  alwaysCompareItems = "1", -- always compare items with tooltips
+  -- cursorSizePreferred = "2", -- based on dpi, but maybe too small on high dpi values -1 (auto) - 4 (largest)
+  enablePVPNotifyAFK = "0", -- ability to shutdown the afk notification system in pvp
   ActionButtonUseKeyDown = "1",
   ffxglow = "0",
   lossOfControl = "1", -- show when im stunned
@@ -123,7 +128,8 @@ local cvars = {
   graphicsComputeEffects = "0", -- disabled
   countdownForCooldowns = "1", -- NUMBERS: Shows "3, 2, 1" on icons instead of just a clock swipe
   pvpFramesDisplayClassColor = "1", -- shows class colors
-  softTargetEnemy = "1", -- automatically targets enemies you face if you have no target
+  -- softTargetEnemy = "1", -- automatically targets enemies you face if you have no target
+  stickyTargeting = "1", -- clicking on the ground will not remove target
   softTargetIconEnemy = "1", -- Show a distinct icon over the "Soft Target" so you know who you will hit
 }
 
@@ -306,6 +312,7 @@ Events:SetScript("OnEvent", function(self, event, ...)
 
     -- Toggle Circle Highlight
     C_CVar.SetCVar("findYourSelfAnywhere", inCombat and "1" or "0")
+    -- C_CVar.SetCVar("findYourselfAnywhereOnlyInCombat", 1)
     C_CVar.SetCVar("findYourSelfModeCircle", inCombat and "1" or "0")
     C_CVar.SetCVar("findYourSelfModeOutline", inCombat and "1" or "0")
 
