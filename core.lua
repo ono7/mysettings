@@ -131,6 +131,7 @@ local cvars = {
   -- softTargetEnemy = "1", -- automatically targets enemies you face if you have no target
   targetAutoLock = "1", -- clicking on the ground will not remove target
   softTargetIconEnemy = "1", -- Show a distinct icon over the "Soft Target" so you know who you will hit
+  TargetPriorityCombatLock = "2", -- adds combat lock agains player enemies/pvp
 }
 
 -- change audio output device automatically when it changes
