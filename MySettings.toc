@@ -1,5 +1,5 @@
 
-## Interface: 120001
+## Interface: 120007
 ## Title: MySettings
 ## Version: @project-version@
 ## Notes: Dynamically sets SQW based on latency and sets targetting based on content (PVP/PVE).
