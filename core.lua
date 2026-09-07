@@ -57,35 +57,123 @@ end
 
 -- BASE CVARS
 local baseCVars = {
-  nameplateOverlapH = "1",
-  nameplateOverlapV = "0.35",
+  -- GUI: Options -> Gameplay -> Interface -> Display -> "Tutorials"
+  showTutorials = "0",
+
+  -- GUI: Options -> Gameplay -> Interface -> Display -> "Always Compare Items"
+  alwaysCompareItems = "1",
+
+  -- GUI: Options -> Gameplay -> Interface -> Display -> "Loss of Control Alerts"
+  lossOfControl = "1",
+
+  -- GUI: Options -> Gameplay -> Interface -> Display -> "Spell Activation Overlay" / Highlight
+  assistedCombatHighlight = "1",
+
+  -- GUI: Options -> Gameplay -> Interface -> Display -> "Bank Clean Up Confirmation"
+  bankConfirmTabCleanUp = "0",
+
+  -- GUI: Options -> Gameplay -> Interface -> Action Bars -> "Show Numbers for Cooldowns"
+  countdownForCooldowns = "1",
+
+  -- GUI: Options -> Gameplay -> Interface -> Names -> "Guild Names"
+  UnitNamePlayerGuild = "0",
+
+  -- GUI: Options -> Gameplay -> Interface -> Names -> "Titles"
+  UnitNamePlayerPVPTitle = "0",
+
+  -- GUI: Options -> Gameplay -> Controls -> "Auto Loot"
+  autoLootDefault = "1",
+
+  -- GUI: Options -> Gameplay -> Controls -> "Press and Hold Casting"
+  -- NOTE(jlima): Disabled to prevent unintended repeat casts in low-latency spell queues.
+  ActionButtonUseKeyHeldSpell = "0",
+
+  -- GUI: Options -> Gameplay -> Controls -> "Deselect on Click"
+  deselectOnClick = "0",
+
+  -- GUI: Options -> Gameplay -> Controls -> "Target Priority"
+  TargetPriorityPvp = "3",
+
+  -- GUI: Options -> Gameplay -> Combat -> "Key Down Action"
+  ActionButtonUseKeyDown = "1",
+
+  -- GUI: Options -> Gameplay -> Combat -> "PvP Notify AFK"
+  enablePVPNotifyAFK = "0",
+
+  -- GUI: Options -> Gameplay -> Combat -> "Soft Target Icon"
+  softTargetIconEnemy = "1",
+
+  -- GUI: Options -> Gameplay -> Combat -> "PvP Frames Display Class Color"
+  pvpFramesDisplayClassColor = "1",
+
+  -- GUI: Options -> Audio -> "Error Speech"
+  Sound_EnableErrorSpeech = "0",
+
+  -- GUI: Options -> Audio -> "Output Device" (0 = System Default)
+  Sound_OutputDriverIndex = "0",
+
+  -- GUI: Options -> Accessibility -> General -> "Motion Sickness" -> "Reduce Camera Motion"
+  CameraReduceUnexpectedMovement = "1",
+
+  -- GUI: Options -> Accessibility -> General -> "Camera Shake" -> Set to None
+  -- NOTE(jlima): Eliminates full-screen disorientation from boss ground slams and earthquakes.
+  ShakeStrengthCamera = "0",
+
+  -- GUI: Options -> Accessibility -> General -> "Skyriding Pitch Effects / Dynamic FOV"
+  -- NOTE(jlima): Disables fish-eye perspective warping at high mount speeds to stabilize screen edges.
+  AdvFlyingDynamicFOVEnabled = "0",
+
+  -- GUI: Options -> Network -> "Advanced Combat Logging"
+  -- NOTE(jlima): Streams player positions, gear, and combat states directly to disk for Warcraft Logs/Details.
+  advancedCombatLogging = "1",
+
+  -- GUI: Options -> Gameplay -> Interface -> Names -> "Nameplate Motion Type" (1 = Stacking)
+  -- NOTE(jlima): Prevents nameplates from overlapping into an unclickable stack in large packs.
+  nameplateMotion = "1",
+
+  -- --- ENGINE/HIDDEN CVARS (No standard GUI menu toggle) ---
+
+  -- NOTE(jlima): Maximize physical camera pullout beyond standard slider limits.
+  cameraDistanceMaxZoomFactor = "2.6",
+
+  -- NOTE(jlima): Disables instant upward camera pitching when the view frustum collides with low geometry.
+  cameraPivot = "0",
+
+  -- NOTE(jlima): Eliminates camera follow acceleration/deceleration smoothing for 1:1 mouse tracking.
+  cameraSmoothStyle = "0",
+
+  -- NOTE(jlima): Forces the modern cone-based raycast priority algorithm for tab targeting.
+  TargetNearestUseNew = "1",
+
+  -- NOTE(jlima): Dims nameplate opacity by 50% when line-of-sight is broken behind terrain or pillars.
+  nameplateOccludedMult = "0.5",
+
+  -- NOTE(jlima): Clamps nameplates to the visible viewport edges so high or airborne units do not slide off-screen.
+  nameplateOtherTopInset = "0.08",
+  nameplateOtherBottomInset = "0.1",
+
+  -- NOTE(jlima): Max render distance for enemy nameplates (60 yards is the engine hardcap).
+  nameplateMaxDistance = "60",
+
+  -- NOTE(jlima): Nameplate sizing, scale bounding, and hit-box dimensions.
   nameplateSize = "2",
   nameplateSelectedScale = "1",
   nameplateMaxScale = "0.7",
-  deselectOnClick = "0",
   nameplateMinScale = "0.4",
-  nameplateMaxDistance = "60",
-  showTutorials = "0",
-  cameraDistanceMaxZoomFactor = "2.6",
-  CameraReduceUnexpectedMovement = "1",
-  assistedCombatHighlight = "1",
-  TargetPriorityPvp = "3",
-  bankConfirmTabCleanUp = "0",
-  alwaysCompareItems = "1",
-  enablePVPNotifyAFK = "0",
-  ActionButtonUseKeyDown = "1",
-  lossOfControl = "1",
-  cameraSmoothStyle = "0",
+  nameplateOverlapH = "1",
+  nameplateOverlapV = "0.35",
+
+  -- NOTE(jlima): Disables the desaturated black-and-white blur overlay while dead to maintain clear tactical awareness.
+  ffxDeath = "0",
+
+  -- NOTE(jlima): Disables the edge-swirl distortion shader during Stealth, Invisibility, and Phase transitions.
+  ffxNetherWorld = "0",
+
+  -- NOTE(jlima): Increases impact gore and hit-spark particle limits.
   violenceLevel = "5",
+
+  -- NOTE(jlima): Forces rich tooltip data including raw spell IDs and item levels.
   UberTooltips = "1",
-  Sound_EnableErrorSpeech = "0",
-  autoLootDefault = "1",
-  UnitNamePlayerGuild = "0",
-  UnitNamePlayerPVPTitle = "0",
-  countdownForCooldowns = "1",
-  pvpFramesDisplayClassColor = "1",
-  softTargetIconEnemy = "1",
-  Sound_OutputDriverIndex = "0",
 }
 
 for cvar, val in pairs(baseCVars) do
@@ -135,23 +223,63 @@ Core:RegisterEvent("VOICE_CHAT_OUTPUT_DEVICES_UPDATED")
 Core:SetScript("OnEvent", function(self, event, ...)
   if event == "PLAYER_LOGIN" then
     local graphicsSettings = {
+      -- GUI: Options -> System -> Graphics -> "Render Scale"
       renderscale = IsMacClient() and "0.75" or "0.999",
+
+      -- GUI: Options -> System -> Graphics -> "Compute Effects"
       graphicsComputeEffects = "0",
       RAIDgraphicsComputeEffects = "0",
+
+      -- GUI: Options -> System -> Graphics -> "Particle Density"
+      -- NOTE(jlima): High density (4) is mandatory to reliably resolve spell telegraphs (e.g. Ring of Frost).
       graphicsParticleDensity = "4",
+
+      -- GUI: Options -> System -> Graphics -> "Projected Textures"
+      -- NOTE(jlima): Mandatory to render decals and spell boundaries on the ground terrain.
       projectedTextures = "1",
-      GxAllowCachelessShaderMode = "0",
+
+      -- GUI: Options -> System -> Graphics -> "Depth Effects"
       graphicsDepthEffects = "0",
+
+      -- GUI: Options -> System -> Graphics -> "Ambient Occlusion"
       graphicsSSAO = "0",
-      Contrast = "65",
+
+      -- GUI: Options -> System -> Graphics -> "Ground Clutter"
       graphicsGroundClutter = "0",
+
+      -- GUI: Options -> System -> Graphics -> "Shadow Quality"
       graphicsShadowQuality = "0",
-      volumeFogLevel = "0",
-      Sound_NumChannels = "128",
+
+      -- GUI: Options -> System -> Graphics -> "Liquid Detail"
       graphicsLiquidDetail = "0",
-      weatherDensity = "0",
-      ffxGlow = "0",
+
+      -- GUI: Options -> System -> Graphics -> "Brightness / Contrast"
+      Contrast = "65",
+
+      -- GUI: Options -> Audio -> "Sound Channels"
+      Sound_NumChannels = "128",
+
+      -- GUI: Options -> Gameplay -> Action Bars -> "Auto Add Spells to Action Bar"
       AutoPushSpellToActionBar = "0",
+
+      -- --- HIDDEN GRAPHICS CVARS ---
+
+      -- NOTE(jlima): Prevents flushing compiled pipeline shaders to disk cache; retains in unified memory.
+      GxAllowCachelessShaderMode = "0",
+
+      -- NOTE(jlima): Controls Metal render-queue pacing to prevent input stutter without hitching frame throughput.
+      gxMaxFrameLatency = "2",
+
+      -- NOTE(jlima): Strips the full-screen atmospheric fog layer.
+      volumeFogLevel = "0",
+
+      -- NOTE(jlima): Strips rain/snow occlusion layers to prioritize player/spell geometry visibility.
+      weatherDensity = "0",
+
+      -- NOTE(jlima): Disables full-screen bloom/haze to avoid blown-out lighting contrast.
+      ffxGlow = "0",
+
+      -- NOTE(jlima): Forces bilinear/bicubic sharpening pass across rendered UI surfaces.
       ResampleAlwaysSharpen = "1",
     }
 
@@ -181,7 +309,7 @@ Core:SetScript("OnEvent", function(self, event, ...)
       end
     end
 
-    -- NOTE(jlima): Process container sales with a brief delay queue if inventory size exceeds 20 items to prevent server drop.
+    -- NOTE(jlima): Process container sales across inventory and reagent storage.
     local maxBags = NUM_BAG_SLOTS + (NUM_REAGENTBAG_SLOTS or 0)
     for bag = 0, maxBags do
       for slot = 1, C_Container.GetContainerNumSlots(bag) do
