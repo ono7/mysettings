@@ -127,10 +127,6 @@ local baseCVars = {
   -- NOTE(jlima): Streams player positions, gear, and combat states directly to disk for Warcraft Logs/Details.
   advancedCombatLogging = "1",
 
-  -- GUI: Options -> Gameplay -> Interface -> Names -> "Nameplate Motion Type" (1 = Stacking)
-  -- NOTE(jlima): Prevents nameplates from overlapping into an unclickable stack in large packs.
-  nameplateMotion = "1",
-
   -- --- ENGINE/HIDDEN CVARS (No standard GUI menu toggle) ---
 
   -- NOTE(jlima): Maximize physical camera pullout beyond standard slider limits.
@@ -145,13 +141,6 @@ local baseCVars = {
   -- NOTE(jlima): Forces the modern cone-based raycast priority algorithm for tab targeting.
   TargetNearestUseNew = "1",
 
-  -- NOTE(jlima): Dims nameplate opacity by 50% when line-of-sight is broken behind terrain or pillars.
-  nameplateOccludedMult = "0.5",
-
-  -- NOTE(jlima): Clamps nameplates to the visible viewport edges so high or airborne units do not slide off-screen.
-  nameplateOtherTopInset = "0.08",
-  nameplateOtherBottomInset = "0.1",
-
   -- NOTE(jlima): Max render distance for enemy nameplates (60 yards is the engine hardcap).
   nameplateMaxDistance = "60",
 
@@ -165,9 +154,6 @@ local baseCVars = {
 
   -- NOTE(jlima): Disables the desaturated black-and-white blur overlay while dead to maintain clear tactical awareness.
   ffxDeath = "0",
-
-  -- NOTE(jlima): Disables the edge-swirl distortion shader during Stealth, Invisibility, and Phase transitions.
-  ffxNetherWorld = "0",
 
   -- NOTE(jlima): Increases impact gore and hit-spark particle limits.
   violenceLevel = "5",
