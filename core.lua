@@ -7,6 +7,20 @@ local Colors = {
   blue = "00aaff",
   red = "ff0000",
   white = "ffffff",
+  black = "000000",
+  yellow = "ffff00",
+  orange = "ffa500",
+  pink = "ff69b4",
+  cyan = "00ffff",
+  gray = "9d9d9d",
+  common = "ffffff",
+  rare = "0070dd",
+  epic = "a335ee",
+  legend = "ff8000",
+  heirloom = "e6cc80",
+  druid = "ff7d0a",
+  mage = "69ccf0",
+  paladin = "f58cba",
   hunter = "abd473",
 }
 
@@ -47,15 +61,9 @@ local function SetAndVerifyCVar(cvar, wants)
   end
 end
 
--- TRACKER TOGGLE STATE
-local autoHideTracker = true
-SLASH_MYSETTINGS_TRACKER1 = "/tracker"
-SlashCmdList["MYSETTINGS_TRACKER"] = function()
-  autoHideTracker = not autoHideTracker
-  Log("Combat Tracker Auto-Hide", autoHideTracker and "ON" or "OFF")
-end
+-- 1. BASE CVARS
+Log("Loading MySettings CVars...")
 
--- BASE CVARS
 local baseCVars = {
   -- GUI: Options -> Gameplay -> Interface -> Display -> "Tutorials"
   showTutorials = "0",
@@ -144,6 +152,10 @@ local baseCVars = {
   -- NOTE(jlima): Max render distance for enemy nameplates (60 yards is the engine hardcap).
   nameplateMaxDistance = "60",
 
+  -- NOTE(jlima): Eliminates floating health bars above critters and battle pets.
+  nameplateShowCritters = "0",
+  nameplateShowFriendlyNPCs = "0",
+
   -- NOTE(jlima): Nameplate sizing, scale bounding, and hit-box dimensions.
   nameplateSize = "2",
   nameplateSelectedScale = "1",
@@ -169,7 +181,7 @@ end
 -- PERMANENTLY SUPPRESS RED UI ERRORS
 UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE")
 
--- CONNECTION OPTIMIZATION (SQW)
+-- 2. NETWORK SPELL QUEUE OPTIMIZATION
 local retryCount = 0
 local MAX_RETRIES = 30
 
@@ -192,14 +204,49 @@ local function OptimizeConnection(source)
   local tolerance = 100
   local newSQW = math.min(400, worldLag + tolerance)
 
+  if newSQW >= 400 then
+    Log(Colorize("High Latency (" .. worldLag .. "ms) - SQW Clamped to 400", "red"))
+  end
+
   SetAndVerifyCVar("SpellQueueWindow", newSQW)
   Log(string.format("%s (Src: %s) | Latency: %dms", Colorize("SpellQueue"), source, worldLag), "SQW: " .. newSQW)
 end
 
--- SECURE / EVENT-DRIVEN SUBSYSTEMS
+-- 3. OBJECTIVE TRACKER DISPATCHER
+-- NOTE(jlima): collapse-only workflow; state is never programmatically expanded once collapsed
+local function CollapseTracker()
+  if not ObjectiveTrackerFrame then
+    return
+  end
+
+  local isCollapsed = false
+  if ObjectiveTrackerFrame.IsCollapsed then
+    isCollapsed = ObjectiveTrackerFrame:IsCollapsed()
+  elseif ObjectiveTrackerFrame.isCollapsed ~= nil then
+    isCollapsed = ObjectiveTrackerFrame.isCollapsed
+  end
+
+  if not isCollapsed then
+    if ObjectiveTrackerFrame.SetIsCollapsed then
+      ObjectiveTrackerFrame:SetIsCollapsed(true)
+    elseif ObjectiveTrackerFrame.SetCollapsed then
+      ObjectiveTrackerFrame:SetCollapsed(true)
+    end
+  end
+end
+
+local function CheckPvPCollapse()
+  local _, instanceType = IsInInstance()
+  if instanceType == "pvp" or instanceType == "arena" or C_PvP.IsPVPMap() then
+    CollapseTracker()
+  end
+end
+
+-- 4. UNIFIED CORE SUBSYSTEM
 local Core = CreateFrame("Frame")
 Core:RegisterEvent("PLAYER_LOGIN")
 Core:RegisterEvent("PLAYER_ENTERING_WORLD")
+Core:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 Core:RegisterEvent("MERCHANT_SHOW")
 Core:RegisterEvent("PLAYER_REGEN_DISABLED")
 Core:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -280,12 +327,10 @@ Core:SetScript("OnEvent", function(self, event, ...)
     Log(Colorize(string.format("Setup Complete: %d success, %d errors", setvarSuccess, setvarFailed), "hunter"))
   elseif event == "PLAYER_ENTERING_WORLD" then
     OptimizeConnection("Auto")
-
-    C_Timer.After(1, function()
-      if ObjectiveTrackerFrame and not InCombatLockdown() then
-        ObjectiveTrackerFrame:SetCollapsed(C_PvP.IsPVPMap())
-      end
-    end)
+    -- NOTE(jlima): check instance state on loading screens to collapse in pvp
+    C_Timer.After(0.5, CheckPvPCollapse)
+  elseif event == "ZONE_CHANGED_NEW_AREA" then
+    C_Timer.After(0.5, CheckPvPCollapse)
   elseif event == "MERCHANT_SHOW" then
     if CanMerchantRepair() then
       local cost = GetRepairAllCost()
@@ -298,31 +343,25 @@ Core:SetScript("OnEvent", function(self, event, ...)
     -- NOTE(jlima): Process container sales across inventory and reagent storage.
     local maxBags = NUM_BAG_SLOTS + (NUM_REAGENTBAG_SLOTS or 0)
     for bag = 0, maxBags do
-      for slot = 1, C_Container.GetContainerNumSlots(bag) do
+      local numSlots = C_Container.GetContainerNumSlots(bag)
+      for slot = 1, numSlots do
         local info = C_Container.GetContainerItemInfo(bag, slot)
-        if info and info.quality == 0 and not info.hasNoValue then
+        if info and info.quality == 0 and not info.hasNoValue and not info.isLocked then
           C_Container.UseContainerItem(bag, slot)
         end
       end
     end
-  elseif event == "PLAYER_REGEN_DISABLED" or event == "PLAYER_REGEN_ENABLED" then
-    local inCombat = (event == "PLAYER_REGEN_DISABLED")
+  elseif event == "PLAYER_REGEN_DISABLED" then
+    C_CVar.SetCVar("findYourSelfAnywhere", "1")
+    C_CVar.SetCVar("findYourSelfModeCircle", "1")
+    C_CVar.SetCVar("findYourSelfModeOutline", "1")
 
-    C_CVar.SetCVar("findYourSelfAnywhere", inCombat and "1" or "0")
-    C_CVar.SetCVar("findYourSelfModeCircle", inCombat and "1" or "0")
-    C_CVar.SetCVar("findYourSelfModeOutline", inCombat and "1" or "0")
-
-    if ObjectiveTrackerFrame and not InCombatLockdown() then
-      if inCombat then
-        if autoHideTracker and not ObjectiveTrackerFrame.isCollapsed then
-          ObjectiveTrackerFrame:SetCollapsed(true)
-        end
-      else
-        if not C_PvP.IsPVPMap() and ObjectiveTrackerFrame.isCollapsed then
-          ObjectiveTrackerFrame:SetCollapsed(false)
-        end
-      end
-    end
+    -- NOTE(jlima): collapse on combat entry; zero code paths re-expand on drop
+    CollapseTracker()
+  elseif event == "PLAYER_REGEN_ENABLED" then
+    C_CVar.SetCVar("findYourSelfAnywhere", "0")
+    C_CVar.SetCVar("findYourSelfModeCircle", "0")
+    C_CVar.SetCVar("findYourSelfModeOutline", "0")
   elseif event == "PLAYER_DEAD" then
     local inInstance, instanceType = IsInInstance()
     if inInstance and (instanceType == "pvp" or instanceType == "arena") then
@@ -336,3 +375,17 @@ Core:SetScript("OnEvent", function(self, event, ...)
     end
   end
 end)
+
+-- 5. SECURE KEYBLOCKER (PREVENTS ESCAPE FROM DROPPING TARGET IN COMBAT)
+local blocker = CreateFrame("Button", "MyCombatBlocker", UIParent, "SecureHandlerStateTemplate")
+RegisterStateDriver(blocker, "combatState", "[combat] 1; 0")
+blocker:SetAttribute(
+  "_onstate-combatState",
+  [[
+    if newstate == 1 then
+      self:SetBindingClick(true, "ESCAPE", self:GetName())
+    else
+      self:ClearBindings()
+    end
+  ]]
+)
